@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LightCode v0.1</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: #111318;
+    color: #e8eaf0;
+    font-family:
+        "Segoe UI",
+        "Yu Gothic UI",
+        sans-serif;
+}
+
+button,
+input {
+    font: inherit;
+}
+
+button {
+    color: inherit;
+}
+
+#app {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* =========================
+   Menu
+========================= */
+
+.menu-bar {
+    height: 34px;
+    display: flex;
+    align-items: center;
+    background: #181a20;
+    border-bottom: 1px solid #292c35;
+    user-select: none;
+}
+
+.menu-item {
+    height: 100%;
+    padding: 0 13px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.menu-item:hover {
+    background: #252832;
+}
+
+/* =========================
+   Main
+========================= */
+
+.main {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+}
+
+/* =========================
+   Explorer
+========================= */
+
+.explorer {
+    width: 230px;
+    min-width: 180px;
+    background: #17191f;
+    border-right: 1px solid #292c35;
+    display: flex;
+    flex-direction: column;
+}
+
+.explorer-header {
+    height: 38px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #b8bcc7;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.explorer-buttons {
+    display: flex;
+    gap: 4px;
+}
+
+.small-button {
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.small-button:hover {
+    background: #292c35;
+}
+
+.file-list {
+    flex: 1;
+    overflow: auto;
+    padding: 4px 0;
+}
+
+.file-item {
+    height: 29px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #c9ccd5;
+}
+
+.file-item:hover {
+    background: #22252d;
+}
+
+.file-item.active {
+    background: #2a2e38;
+    color: #ffffff;
+}
+
+.file-icon {
+    width: 16px;
+    text-align: center;
+}
+
+/* =========================
+   Editor
+========================= */
+
+.editor-area {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    background: #101217;
+}
+
+/* =========================
+   Tabs
+========================= */
+
+.tabs {
+    height: 36px;
+    display: flex;
+    background: #181a20;
+    border-bottom: 1px solid #292c35;
+    overflow-x: auto;
+}
+
+.tab {
+    min-width: 140px;
+    max-width: 220px;
+    height: 36px;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-right: 1px solid #292c35;
+    color: #aeb2bd;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.tab.active {
+    background: #101217;
+    color: #ffffff;
+}
+
+.tab-name {
+    flex: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.tab-close {
+    width: 20px;
+    height: 20px;
+    border: 0;
+    background: transparent;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.tab-close:hover {
+    background: #30343f;
+}
+
+/* =========================
+   Editor body
+========================= */
+
+.editor-wrapper {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    position: relative;
+    overflow: hidden;
+}
+
+.line-numbers {
+    width: 55px;
+    padding-top: 12px;
+    background: #101217;
+    color: #555b68;
+    text-align: right;
+    padding-right: 13px;
+    font-family: Consolas, "Cascadia Code", monospace;
+    font-size: 14px;
+    line-height: 22px;
+    overflow: hidden;
+    user-select: none;
+}
+
+.editor {
+    flex: 1;
+    resize: none;
+    border: 0;
+    outline: 0;
+    padding: 12px 16px;
+    background: #101217;
+    color: #e6e8ed;
+    font-family:
+        Consolas,
+        "Cascadia Code",
+        "Fira Code",
+        monospace;
+    font-size: 14px;
+    line-height: 22px;
+    tab-size: 4;
+    white-space: pre;
+    overflow: auto;
+}
+
+.editor::selection {
+    background: #304a70;
+}
+
+/* =========================
+   Search
+========================= */
+
+.search-bar {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    width: 300px;
+    display: none;
+    background: #20232b;
+    border: 1px solid #3a3e49;
+    border-radius: 6px;
+    padding: 7px;
+    z-index: 20;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+}
+
+.search-bar.visible {
+    display: flex;
+    gap: 6px;
+}
+
+.search-input {
+    flex: 1;
+    min-width: 0;
+    height: 28px;
+    border: 1px solid #3b404c;
+    outline: none;
+    border-radius: 4px;
+    background: #111318;
+    color: #fff;
+    padding: 0 8px;
+}
+
+.search-input:focus {
+    border-color: #668cff;
+}
+
+.search-button {
+    width: 30px;
+    border: 0;
+    border-radius: 4px;
+    background: #2d3240;
+    cursor: pointer;
+}
+
+.search-button:hover {
+    background: #3a4050;
+}
+
+/* =========================
+   Status bar
+========================= */
+
+.status-bar {
+    height: 25px;
+    display: flex;
+    align-items: center;
+    background: #1b1e25;
+    border-top: 1px solid #292c35;
+    color: #969ba7;
+    font-size: 11px;
+}
+
+.status-left {
+    flex: 1;
+    padding-left: 12px;
+}
+
+.status-right {
+    display: flex;
+    gap: 18px;
+    padding-right: 12px;
+}
+
+/* =========================
+   Context menu
+========================= */
+
+.context-menu {
+    position: fixed;
+    display: none;
+    width: 170px;
+    background: #20232b;
+    border: 1px solid #383c47;
+    border-radius: 5px;
+    padding: 4px 0;
+    z-index: 100;
+    box-shadow: 0 10px 30px rgba(0,0,0,.45);
+}
+
+.context-menu.visible {
+    display: block;
+}
+
+.context-item {
+    height: 30px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.context-item:hover {
+    background: #2d3240;
+}
+
+/* =========================
+   Scrollbars
+========================= */
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #111318;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #30343e;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #3d4350;
+}
+</style>
+</head>
+
+<body>
+
+<div id="app">
+
+    <!-- Menu -->
+    <div class="menu-bar">
+
+        <div class="menu-item" id="menuFile">
+            ファイル
+        </div>
+
+        <div class="menu-item" id="menuEdit">
+            編集
+        </div>
+
+        <div class="menu-item" id="menuView">
+            表示
+        </div>
+
+        <div class="menu-item" id="menuHelp">
+            ヘルプ
+        </div>
+
+    </div>
+
+    <div class="main">
+
+        <!-- Explorer -->
+        <aside class="explorer">
+
+            <div class="explorer-header">
+
+                <span>EXPLORER</span>
+
+                <div class="explorer-buttons">
+
+                    <button
+                        class="small-button"
+                        id="newFileButton"
+                        title="新規ファイル">
+                        +
+                    </button>
+
+                    <button
+                        class="small-button"
+                        id="openFileButton"
+                        title="ファイルを開く">
+                        ↗
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div
+                class="file-list"
+                id="fileList">
+            </div>
+
+        </aside>
+
+        <!-- Editor -->
+        <section class="editor-area">
+
+            <div
+                class="tabs"
+                id="tabs">
+            </div>
+
+            <div class="editor-wrapper">
+
+                <div
+                    class="line-numbers"
+                    id="lineNumbers">
+                </div>
+
+                <textarea
+                    id="editor"
+                    class="editor"
+                    spellcheck="false"
+                    wrap="off">
+                </textarea>
+
+                <div
+                    class="search-bar"
+                    id="searchBar">
+
+                    <input
+                        id="searchInput"
+                        class="search-input"
+                        placeholder="検索...">
+
+                    <button
+                        id="searchPrev"
+                        class="search-button">
+                        ↑
+                    </button>
+
+                    <button
+                        id="searchNext"
+                        class="search-button">
+                        ↓
+                    </button>
+
+                    <button
+                        id="searchClose"
+                        class="search-button">
+                        ×
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+    <!-- Status -->
+    <div class="status-bar">
+
+        <div
+            class="status-left"
+            id="statusMessage">
+            Ready
+        </div>
+
+        <div class="status-right">
+
+            <span id="cursorPosition">
+                Ln 1, Col 1
+            </span>
+
+            <span id="encoding">
+                UTF-8
+            </span>
+
+            <span id="language">
+                Plain Text
+            </span>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Hidden file input -->
+<input
+    type="file"
+    id="fileInput"
+    hidden>
+
+<script>
+"use strict";
+
+/*
+    LightCode v0.1
+    Browser Edition
+*/
+
+/* =========================
+   State
+========================= */
+
+const state = {
+
+    files: [],
+
+    activeFileId: null,
+
+    nextId: 1,
+
+    autosaveTimer: null
+
+};
+
+/* =========================
+   DOM
+========================= */
+
+const editor =
+    document.getElementById("editor");
+
+const tabs =
+    document.getElementById("tabs");
+
+const fileList =
+    document.getElementById("fileList");
+
+const lineNumbers =
+    document.getElementById("lineNumbers");
+
+const fileInput =
+    document.getElementById("fileInput");
+
+const statusMessage =
+    document.getElementById("statusMessage");
+
+const cursorPosition =
+    document.getElementById("cursorPosition");
+
+const language =
+    document.getElementById("language");
+
+const searchBar =
+    document.getElementById("searchBar");
+
+const searchInput =
+    document.getElementById("searchInput");
+
+/* =========================
+   Utility
+========================= */
+
+function getActiveFile() {
+
+    return state.files.find(
+        file => file.id === state.activeFileId
+    );
+
+}
+
+function getLanguage(filename) {
+
+    const extension =
+        filename
+            .split(".")
+            .pop()
+            .toLowerCase();
+
+    const languages = {
+
+        js: "JavaScript",
+        mjs: "JavaScript",
+        ts: "TypeScript",
+
+        cpp: "C++",
+        cc: "C++",
+        cxx: "C++",
+
+        h: "C/C++",
+        hpp: "C++",
+
+        py: "Python",
+
+        html: "HTML",
+        htm: "HTML",
+
+        css: "CSS",
+
+        json: "JSON",
+
+        java: "Java",
+
+        rs: "Rust",
+
+        go: "Go",
+
+        md: "Markdown"
+
+    };
+
+    return languages[extension] || "Plain Text";
+}
+
+/* =========================
+   File management
+========================= */
+
+function createFile(
+    name = "untitled.txt",
+    content = ""
+) {
+
+    const file = {
+
+        id: state.nextId++,
+
+        name,
+
+        content,
+
+        modified: false,
+
+        handle: null
+
+    };
+
+    state.files.push(file);
+
+    state.activeFileId = file.id;
+
+    render();
+
+    editor.focus();
+
+    return file;
+}
+
+function closeFile(id) {
+
+    const index =
+        state.files.findIndex(
+            file => file.id === id
+        );
+
+    if (index === -1) {
+        return;
+    }
+
+    state.files.splice(index, 1);
+
+    if (state.activeFileId === id) {
+
+        if (state.files.length > 0) {
+
+            const nextIndex =
+                Math.max(
+                    0,
+                    index - 1
+                );
+
+            state.activeFileId =
+                state.files[nextIndex].id;
+
+        } else {
+
+            createFile();
+
+            return;
+
+        }
+
+    }
+
+    render();
+
+}
+
+/* =========================
+   Rendering
+========================= */
+
+function render() {
+
+    renderTabs();
+
+    renderFileList();
+
+    const file = getActiveFile();
+
+    if (!file) {
+        return;
+    }
+
+    editor.value = file.content;
+
+    language.textContent =
+        getLanguage(file.name);
+
+    updateLineNumbers();
+
+    updateCursor();
+
+    statusMessage.textContent =
+        file.modified
+            ? "Modified"
+            : "Ready";
+
+}
+
+function renderTabs() {
+
+    tabs.innerHTML = "";
+
+    for (const file of state.files) {
+
+        const tab =
+            document.createElement("div");
+
+        tab.className =
+            "tab" +
+            (
+                file.id === state.activeFileId
+                    ? " active"
+                    : ""
+            );
+
+        const name =
+            document.createElement("div");
+
+        name.className = "tab-name";
+
+        name.textContent =
+            (file.modified ? "● " : "") +
+            file.name;
+
+        const close =
+            document.createElement("button");
+
+        close.className =
+            "tab-close";
+
+        close.textContent = "×";
+
+        close.addEventListener(
+            "click",
+            event => {
+
+                event.stopPropagation();
+
+                closeFile(file.id);
+
+            }
+        );
+
+        tab.appendChild(name);
+        tab.appendChild(close);
+
+        tab.addEventListener(
+            "click",
+            () => {
+
+                switchFile(file.id);
+
+            }
+        );
+
+        tabs.appendChild(tab);
+
+    }
+
+}
+
+function renderFileList() {
+
+    fileList.innerHTML = "";
+
+    for (const file of state.files) {
+
+        const item =
+            document.createElement("div");
+
+        item.className =
+            "file-item" +
+            (
+                file.id === state.activeFileId
+                    ? " active"
+                    : ""
+            );
+
+        const icon =
+            document.createElement("span");
+
+        icon.className =
+            "file-icon";
+
+        icon.textContent =
+            getFileIcon(file.name);
+
+        const name =
+            document.createElement("span");
+
+        name.textContent =
+            file.name;
+
+        item.appendChild(icon);
+        item.appendChild(name);
+
+        item.addEventListener(
+            "click",
+            () => {
+
+                switchFile(file.id);
+
+            }
+        );
+
+        fileList.appendChild(item);
+
+    }
+
+}
+
+function getFileIcon(name) {
+
+    const extension =
+        name
+            .split(".")
+            .pop()
+            .toLowerCase();
+
+    if (extension === "js") {
+        return "JS";
+    }
+
+    if (extension === "ts") {
+        return "TS";
+    }
+
+    if (
+        extension === "cpp" ||
+        extension === "hpp"
+    ) {
+        return "C";
+    }
+
+    if (extension === "py") {
+        return "Py";
+    }
+
+    if (
+        extension === "html" ||
+        extension === "htm"
+    ) {
+        return "H";
+    }
+
+    if (extension === "css") {
+        return "#";
+    }
+
+    return "•";
+}
+
+/* =========================
+   Switching files
+========================= */
+
+function switchFile(id) {
+
+    const current =
+        getActiveFile();
+
+    if (current) {
+
+        current.content =
+            editor.value;
+
+    }
+
+    state.activeFileId = id;
+
+    render();
+
+}
+
+/* =========================
+   Editor
+========================= */
+
+editor.addEventListener(
+    "input",
+    () => {
+
+        const file =
+            getActiveFile();
+
+        if (!file) {
+            return;
+        }
+
+        file.content =
+            editor.value;
+
+        file.modified = true;
+
+        updateLineNumbers();
+
+        updateCursor();
+
+        renderTabs();
+
+        statusMessage.textContent =
+            "Modified";
+
+        scheduleAutosave();
+
+    }
+);
+
+editor.addEventListener(
+    "scroll",
+    () => {
+
+        lineNumbers.scrollTop =
+            editor.scrollTop;
+
+    }
+);
+
+editor.addEventListener(
+    "click",
+    updateCursor
+);
+
+editor.addEventListener(
+    "keyup",
+    updateCursor
+);
+
+function updateLineNumbers() {
+
+    const lineCount =
+        editor.value.split("\n").length;
+
+    let html = "";
+
+    for (
+        let i = 1;
+        i <= lineCount;
+        i++
+    ) {
+
+        html += i + "<br>";
+
+    }
+
+    lineNumbers.innerHTML = html;
+
+}
+
+function updateCursor() {
+
+    const position =
+        editor.selectionStart;
+
+    const text =
+        editor.value.substring(
+            0,
+            position
+        );
+
+    const lines =
+        text.split("\n");
+
+    const line =
+        lines.length;
+
+    const column =
+        lines[lines.length - 1].length + 1;
+
+    cursorPosition.textContent =
+        `Ln ${line}, Col ${column}`;
+
+}
+
+/* =========================
+   Keyboard
+========================= */
+
+editor.addEventListener(
+    "keydown",
+    event => {
+
+        /*
+            Tabキーでスペース4個
+        */
+
+        if (event.key === "Tab") {
+
+            event.preventDefault();
+
+            const start =
+                editor.selectionStart;
+
+            const end =
+                editor.selectionEnd;
+
+            editor.value =
+                editor.value.substring(
+                    0,
+                    start
+                ) +
+                "    " +
+                editor.value.substring(
+                    end
+                );
+
+            editor.selectionStart =
+                editor.selectionEnd =
+                    start + 4;
+
+            editor.dispatchEvent(
+                new Event("input")
+            );
+
+        }
+
+    }
+);
+
+/* =========================
+   New file
+========================= */
+
+function newFile() {
+
+    let number = 1;
+
+    while (
+        state.files.some(
+            file =>
+                file.name ===
+                `untitled${number}.txt`
+        )
+    ) {
+
+        number++;
+
+    }
+
+    createFile(
+        `untitled${number}.txt`,
+        ""
+    );
+
+}
+
+/* =========================
+   Open file
+========================= */
+
+function openFile() {
+
+    fileInput.value = "";
+
+    fileInput.click();
+
+}
+
+fileInput.addEventListener(
+    "change",
+    event => {
+
+        const file =
+            event.target.files[0];
+
+        if (!file) {
+            return;
+        }
+
+        const reader =
+            new FileReader();
+
+        reader.onload = () => {
+
+            createFile(
+                file.name,
+                reader.result
+            );
+
+            statusMessage.textContent =
+                "Opened";
+
+        };
+
+        reader.readAsText(file);
+
+    }
+);
+
+/* =========================
+   Save
+========================= */
+
+function saveFile() {
+
+    const file =
+        getActiveFile();
+
+    if (!file) {
+        return;
+    }
+
+    const blob =
+        new Blob(
+            [editor.value],
+            {
+                type:
+                    "text/plain;charset=utf-8"
+            }
+        );
+
+    const url =
+        URL.createObjectURL(blob);
+
+    const link =
+        document.createElement("a");
+
+    link.href = url;
+
+    link.download =
+        file.name;
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    link.remove();
+
+    URL.revokeObjectURL(url);
+
+    file.content =
+        editor.value;
+
+    file.modified = false;
+
+    renderTabs();
+
+    statusMessage.textContent =
+        "Saved";
+
+}
+
+/* =========================
+   Autosave
+========================= */
+
+function scheduleAutosave() {
+
+    clearTimeout(
+        state.autosaveTimer
+    );
+
+    state.autosaveTimer =
+        setTimeout(
+            () => {
+
+                const file =
+                    getActiveFile();
+
+                if (!file) {
+                    return;
+                }
+
+                localStorage.setItem(
+                    "lightcode-" + file.id,
+                    file.content
+                );
+
+            },
+            500
+        );
+
+}
+
+/* =========================
+   Search
+========================= */
+
+function openSearch() {
+
+    searchBar.classList.add(
+        "visible"
+    );
+
+    searchInput.focus();
+
+}
+
+function closeSearch() {
+
+    searchBar.classList.remove(
+        "visible"
+    );
+
+    editor.focus();
+
+}
+
+function findNext() {
+
+    const query =
+        searchInput.value;
+
+    if (!query) {
+        return;
+    }
+
+    const text =
+        editor.value;
+
+    const start =
+        editor.selectionEnd;
+
+    let index =
+        text.indexOf(
+            query,
+            start
+        );
+
+    if (index === -1) {
+
+        index =
+            text.indexOf(
+                query
+            );
+
+    }
+
+    if (index !== -1) {
+
+        editor.focus();
+
+        editor.setSelectionRange(
+            index,
+            index + query.length
+        );
+
+    }
+
+}
+
+function findPrevious() {
+
+    const query =
+        searchInput.value;
+
+    if (!query) {
+        return;
+    }
+
+    const text =
+        editor.value;
+
+    const start =
+        editor.selectionStart - 1;
+
+    let index =
+        text.lastIndexOf(
+            query,
+            start
+        );
+
+    if (index === -1) {
+
+        index =
+            text.lastIndexOf(
+                query
+            );
+
+    }
+
+    if (index !== -1) {
+
+        editor.focus();
+
+        editor.setSelectionRange(
+            index,
+            index + query.length
+        );
+
+    }
+
+}
+
+/* =========================
+   Buttons
+========================= */
+
+document
+    .getElementById("newFileButton")
+    .addEventListener(
+        "click",
+        newFile
+    );
+
+document
+    .getElementById("openFileButton")
+    .addEventListener(
+        "click",
+        openFile
+    );
+
+document
+    .getElementById("searchClose")
+    .addEventListener(
+        "click",
+        closeSearch
+    );
+
+document
+    .getElementById("searchNext")
+    .addEventListener(
+        "click",
+        findNext
+    );
+
+document
+    .getElementById("searchPrev")
+    .addEventListener(
+        "click",
+        findPrevious
+    );
+
+/* =========================
+   Keyboard shortcuts
+========================= */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            (event.ctrlKey ||
+             event.metaKey) &&
+            event.key.toLowerCase() === "s"
+        ) {
+
+            event.preventDefault();
+
+            saveFile();
+
+        }
+
+        if (
+            (event.ctrlKey ||
+             event.metaKey) &&
+            event.key.toLowerCase() === "o"
+        ) {
+
+            event.preventDefault();
+
+            openFile();
+
+        }
+
+        if (
+            (event.ctrlKey ||
+             event.metaKey) &&
+            event.key.toLowerCase() === "n"
+        ) {
+
+            event.preventDefault();
+
+            newFile();
+
+        }
+
+        if (
+            (event.ctrlKey ||
+             event.metaKey) &&
+            event.key.toLowerCase() === "f"
+        ) {
+
+            event.preventDefault();
+
+            openSearch();
+
+        }
+
+        if (event.key === "Escape") {
+
+            closeSearch();
+
+        }
+
+    }
+);
+
+/* =========================
+   Menu actions
+========================= */
+
+document
+    .getElementById("menuFile")
+    .addEventListener(
+        "click",
+        () => {
+
+            const action =
+                prompt(
+                    "File menu\n\n" +
+                    "1 = New\n" +
+                    "2 = Open\n" +
+                    "3 = Save"
+                );
+
+            if (action === "1") {
+                newFile();
+            }
+
+            if (action === "2") {
+                openFile();
+            }
+
+            if (action === "3") {
+                saveFile();
+            }
+
+        }
+    );
+
+document
+    .getElementById("menuEdit")
+    .addEventListener(
+        "click",
+        () => {
+
+            const action =
+                prompt(
+                    "Edit menu\n\n" +
+                    "1 = Undo\n" +
+                    "2 = Redo\n" +
+                    "3 = Cut\n" +
+                    "4 = Copy\n" +
+                    "5 = Paste"
+                );
+
+            if (action === "1") {
+
+                document.execCommand(
+                    "undo"
+                );
+
+            }
+
+            if (action === "2") {
+
+                document.execCommand(
+                    "redo"
+                );
+
+            }
+
+            if (action === "3") {
+
+                document.execCommand(
+                    "cut"
+                );
+
+            }
+
+            if (action === "4") {
+
+                document.execCommand(
+                    "copy"
+                );
+
+            }
+
+            if (action === "5") {
+
+                navigator.clipboard
+                    .readText()
+                    .then(text => {
+
+                        const start =
+                            editor.selectionStart;
+
+                        const end =
+                            editor.selectionEnd;
+
+                        editor.value =
+                            editor.value.substring(
+                                0,
+                                start
+                            ) +
+                            text +
+                            editor.value.substring(
+                                end
+                            );
+
+                        editor.dispatchEvent(
+                            new Event("input")
+                        );
+
+                    });
+
+            }
+
+        }
+    );
+
+document
+    .getElementById("menuView")
+    .addEventListener(
+        "click",
+        () => {
+
+            openSearch();
+
+        }
+    );
+
+document
+    .getElementById("menuHelp")
+    .addEventListener(
+        "click",
+        () => {
+
+            alert(
+                "LightCode v0.1\n\n" +
+                "軽量コードエディタ\n" +
+                "Browser Edition"
+            );
+
+        }
+    );
+
+/* =========================
+   Initial file
+========================= */
+
+createFile(
+    "main.cpp",
+`#include <iostream>
+
+int main()
+{
+    std::cout << "Hello, LightCode!";
+    return 0;
+}
+`
+);
+
+</script>
+
+</body>
+</html>
