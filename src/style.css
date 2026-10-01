@@ -1,0 +1,35 @@
+.syntax-keyword {
+    color: #569CD6;
+}
+
+.syntax-string {
+    color: #CE9178;
+}
+
+.syntax-number {
+    color: #B5CEA8;
+}
+
+.syntax-comment {
+    color: #6A9955;
+}
+
+.syntax-tag {
+    color: #569CD6;
+}
+
+.syntax-attribute {
+    color: #9CDCFE;
+}
+
+.syntax-property {
+    color: #9CDCFE;
+}
+
+.syntax-selector {
+    color: #D7BA7D;
+}
+
+.syntax-bracket {
+    color: #808080;
+}
